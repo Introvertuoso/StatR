@@ -77,16 +77,17 @@ treesHeight <- trees$Height
 m <- mean(treesHeight)
 sd <- sd(treesHeight)
 r <- seq(m-4*sd, m+4*sd, 0.5)
-plot(r, dnorm(r, m, sd), type='l')
+plot(r, dnorm(r, mean = m, sd = sd), type='l')
 ## h) We observe two additional tree height values (62 and 86). What's the 
 ##    likelihood that these heights (or more extreme ones) respectively 
 ##    come from the normal distribution from g)?
-pnorm(62, m, sd)
-pnorm(86, m, sd, lower.tail = FALSE)
+pnorm(62, mean = m, sd = sd)
+pnorm(86, mean = m, sd = sd, lower.tail = FALSE)
 ## i) What do you conclude from the p-values? (informal)
 
 # Using an alpha cutoff of 0.05, we can determine that those heights and 
-# more extreme ones are significantly unlikely to occur
+# more extreme ones are significantly unlikely to be from the distribution
+# discussed in (g).
 
 ## j) Use the random sampling function in R to generate 25 random samples from
 ##    the normal distribution from g), and draw a histogram based on this sample.
@@ -111,9 +112,8 @@ for (i in seq(1, 5, 1)) {
 ## In this exercise, we will deal with data from a package.
 
 ## a) Install the package "languageR" and load it.
-install.packages(c('languageR', 'dplyr'))
+install.packages(c('languageR'))
 require(languageR)
-require(dplyr)
 ## b) Specifically, we will deal with the dataset 'lexdec'. 
 ##    This dataset should be available to you once you've loaded languageR.
 ##    Find out what experiment the data comes from
@@ -134,13 +134,13 @@ summary(lexdec)
 # tail() shows the last 6 rows in the dataset
 
 ## e) Look at the first 15 rows of the data.frame
-head(lexdec, 15)
+head(lexdec, n = 15)
 ## f) The file contains multiple observations for each participant. Create a 
 ##   subset only including subject number M2 and assign it to M2
 ##   How many observations are there for this participant, i.e. how many rows 
 ##   are in your subset?
-M2 <- filter(lexdec, Subject == 'M2')
-nrow(M2)
+M2 <- lexdec[lexdec$Subject == 'M2',]
+nrow(M2) # = 79
 ## g) looking at the summary of M2, what can you find out about the demographic 
 ##    parameters of this participant?
 summary(M2)
@@ -152,23 +152,25 @@ hist(M2$RT)
 
 ## i) Create a kernel density plot for this data using density()
 d <- density(M2$RT)
-plot(d[[1]], d[[2]], type='l')
+plot(d$x, d$y, type = 'l')
 ## j) What is the difference between the two?
 
 # The histogram is discrete, relies on binning for resolution, whereas, the kernel
 # density plot is continuous and smooth
 # Additionally, the histogram y-axis corresponds to the frequency at each bin value
-# and the density y-axis is normalized such that the area under the curve amounts to
-# 1
+# and the density y-axis is normalized such that the total area under the curve amounts
+# to 1
 
 ## k) Is this data likely from a normal distribution? How would you check ?
 ##    (describe in words, remember to comment out text)
 
-# Yes it seems to be from a normal distribution.
+# Yes, at first glance, it seems likely be from a normal distribution.
+# To check this hypothesis, we can use a normality test. That can be a graphical test
+# such as a Quantile-Quantile plot, or a frequentists test such as the Shapiro–Wilk test.
 
 ## l) Looking at the graph, do you think the data is skewed? In which direction?
 
-# It is positively skewed
+# Yes, the data looks positively skewed.
 
 #############################################
 ### Exercise 4: Dataframes and boxplots
@@ -185,7 +187,8 @@ plot(d[[1]], d[[2]], type='l')
 ## a) What measurement scale is this data? Is it discrete or continuous? Explain
 ##    in one sentence why.
 
-# The count is a discrete variable and the scale of which is the ratio scale
+# The scale of the count varialbe is a discrete ratio scale, since it can only take integer values
+# with the zero value indicating the abscence of the sentence (and then) in the observation (story).
 
 ## b) The researcher is also interested in whether story telling is related to 
 ##    their reading habits. As a proxy, she asked the children, whether they have 
@@ -198,7 +201,7 @@ lib = c(rep("Y",13),rep("N",13))
 ## c) You will now create a dataframe of this data. Start by creating a vector 
 ##    with participant IDs. Your vector should be named 'pid', and your 
 ##    participants should be labeled from 1 to 26
-pid <- seq(1, 26, 1)
+pid <- seq(1, 26)
 ## d) Next, create a vector containing all the observations. Name this vector 'obs'.
 obs <- c(18, 15, 18, 19, 23, 17, 18, 24, 17, 14, 16, 16, 17, 21, 22, 18, 20, 21,
          20, 20,  16, 17, 17, 18, 20, 26)
@@ -207,6 +210,7 @@ stories <- data.frame(pid = pid, obs = obs, lib = lib)
 ## f) Take a look at the summary of your dataframe, and at the classes of your 
 ##    columns. What class are the variable 'pid' and 'lib'?
 summary(stories)
+str(stories)
 # pid: numeric
 # lib: character
 
@@ -224,23 +228,25 @@ boxplot(obs ~ lib, data = stories)
 # There are outliers in both lib groups
 
 ## j) Which group shows the larger interquartile range? 
-
-# The 'N' lib group exhibits a larger ICR
+IQR(stories[stories$lib == "Y", "obs"])
+IQR(stories[stories$lib == "N", "obs"])
+# The "N" lib group exhibits a larger IQR (3) than the "Y" lib group (2).
 
 ## k) Which one has the greater overall range?
-
-# They have the same range
+range(stories[stories$lib == "Y", "obs"])
+range(stories[stories$lib == "N", "obs"])
+# They have the same overall range of 10.
 
 ## l) What is a whisker? Why is the upper whisker of group "Y" so short?
 
-# A whisker is the difference between the 4th and 3rd quartile (upper whisker) 
-# or the difference between the 2nd and the 1st quartile (lower whisker) in a 
-# boxplot
-# We attribute it to the negative skew of group Y
+# Whiskers are drawn at a distance of 1.5*IQR below the first quartile (up to the largest observed data point),
+# and 1.5*IQR above the third quartile (down to the lowest observed data point).
+# We can attribute the shortness of the upper whisker of group Y to the negative skew of the obesrvations in the group.
 
 ## m) Compare the median of group Y with the mean - which one is plotted in your
 ##    boxplot? Why are they different?
-
+mean(stories[stories$lib == "Y", "obs"])
+median(stories[stories$lib == "Y", "obs"])
 # The mean is greater than the median. The median is plotted as it is the 2nd 
 # quartile (50% quantile). Group Y is negatively skewed therefore the median is 
 # different from the mean.
