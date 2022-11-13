@@ -28,11 +28,11 @@
 ### Exercise 1: Getting started
 ###############
 ## a) Look at your current working directory.
-pwd()
+getwd()
 ## b) Get help with this function.
-?pwd
+?getwd
 ## c) Change your working directory to another directory.
-pwd("/Users/introvertuoso/Desktop")
+setwd("/Users/introvertuoso/Desktop")
 ###############
 ### Exercise 2: Normal distribution plotting
 ###############
@@ -42,29 +42,33 @@ pwd("/Users/introvertuoso/Desktop")
 ##    normal distribution (will become the x-axis in the plot).
 ##    Get R to generate the range from -5 to 5, by 0.75. Assign this to the 
 ##    variable x.
+?seq
 x <- seq(-5, 5, 0.75)
 ## b) Now we need to obtain the y-values of the plot (the density). We do this 
 ##    using the density function for the normal distribution. 
 ##    Use "help(dnorm)" to find out about the standard functions for the normal 
 ##    distribution. Use the defaults for mean and sd (standard normal distribution)
-z <- dnorm(x)
+help(dnorm)
+y <- dnorm(x)
 ## c) Now use plot() to plot the normal distribution for z values of "x". Specify
 ## the type to be line using the suitable argument of plot()
-plot(x, z)
+plot(x, y, type='l')
 ## d) This plot does not look like a smooth normal distribution. Change the vector
 ##  x to have smaller increments and plot again (you also need to update y)
 x <- seq(-5, 5, 0.25)
-z <- dnorm(x)
-plot(x, z)
+y <- dnorm(x)
+plot(x, y, type='l')
 ## e) We want to have a vertical line to represent the mean of our distribution.
 ##    'abline()' can do this for us. Look up help for abline(). 
 ##    Use abline() to create the vertical line. Specify the mean of x using
 ##    the argument 'v'.
 ##    In order to get a dotted line, set the argument 'lty' to 3.
+help(abline)
 abline(v = mean(x), lty=3)
 ## f) Take a look at the trees dataset (You can see it by typing "trees"), which 
 ##    has height, diameter and volume.
 ##    Then select only the Height part and store it in a variable "treesHeight".
+trees
 str(trees)
 treesHeight <- trees$Height
 ## g) Calculate the mean and standard deviation of treesHeight and plot a normal
@@ -73,7 +77,7 @@ treesHeight <- trees$Height
 m <- mean(treesHeight)
 sd <- sd(treesHeight)
 r <- seq(m-4*sd, m+4*sd, 0.5)
-plot(r, dnorm(r, m, sd))
+plot(r, dnorm(r, m, sd), type='l')
 ## h) We observe two additional tree height values (62 and 86). What's the 
 ##    likelihood that these heights (or more extreme ones) respectively 
 ##    come from the normal distribution from g)?
@@ -89,16 +93,16 @@ pnorm(86, m, sd, lower.tail = FALSE)
 ##    Repeat 5 times. Set the range of the x-axis between 58 to 94 using xlim. 
 ##    Fix the number of breaks to 11 using breaks
 sample <- rnorm(25, m, sd)
-hist(sample, bins = 11)
+hist(sample)
 for (i in seq(1, 5, 1)) {
   sample <- rnorm(25, m, sd)
-  hist(sample, bins = 11, xlim=c(58, 94))
+  hist(sample, breaks = 11, xlim=c(58, 94))
 }
 ## k) What do you observe in j?
 
-# The higher number of samples the more resemblent is the histogram of the normal
-# distribution, each time we get a new seed therefore we have a new sample that's
-# different from the one before
+# Each time we get a new seed therefore we have a new sample that's different
+# from the one before. Since the sample size is small we don't get any plots that 
+# resemble a normal distribution
 
 
 ###############
@@ -164,7 +168,7 @@ plot(d[[1]], d[[2]], type='l')
 
 ## l) Looking at the graph, do you think the data is skewed? In which direction?
 
-# Iit is positively skewed
+# It is positively skewed
 
 #############################################
 ### Exercise 4: Dataframes and boxplots
@@ -196,12 +200,13 @@ lib = c(rep("Y",13),rep("N",13))
 ##    participants should be labeled from 1 to 26
 pid <- seq(1, 26, 1)
 ## d) Next, create a vector containing all the observations. Name this vector 'obs'.
-obs <- c(18, 15, 18, 19, 23, 17, 18, 24, 17, 14, 16, 16, 17, 21, 22, 18, 20, 21, 20, 20,  16, 17, 17, 18, 20, 26)
+obs <- c(18, 15, 18, 19, 23, 17, 18, 24, 17, 14, 16, 16, 17, 21, 22, 18, 20, 21,
+         20, 20,  16, 17, 17, 18, 20, 26)
 ## e) Create a dataframe including pid, obs and lib. Assign this to 'stories'. 
 stories <- data.frame(pid = pid, obs = obs, lib = lib)
 ## f) Take a look at the summary of your dataframe, and at the classes of your 
 ##    columns. What class are the variable 'pid' and 'lib'?
-
+summary(stories)
 # pid: numeric
 # lib: character
 
@@ -209,6 +214,9 @@ stories <- data.frame(pid = pid, obs = obs, lib = lib)
 ##     class for these variables? (answer for both separately)
 stories$pid <- factor(stories$pid)
 stories$lib <- factor(stories$lib)
+# We use Factors for categorical variables, which suits our variables
+# Dealing with numbers is easier than dealing with characters
+
 ## h) Create a boxplot of obs for the two lib groups
 boxplot(obs ~ lib, data = stories)
 ## i) Are there outliers in one of the lib groups?
@@ -225,8 +233,10 @@ boxplot(obs ~ lib, data = stories)
 
 ## l) What is a whisker? Why is the upper whisker of group "Y" so short?
 
-# A whisker is the difference between the 4th and 3rd quartile or the difference
-# between the 2nd and the 1st quartile in a boxplot
+# A whisker is the difference between the 4th and 3rd quartile (upper whisker) 
+# or the difference between the 2nd and the 1st quartile (lower whisker) in a 
+# boxplot
+# We attribute it to the negative skew of group Y
 
 ## m) Compare the median of group Y with the mean - which one is plotted in your
 ##    boxplot? Why are they different?
