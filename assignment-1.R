@@ -164,9 +164,9 @@ plot(d$x, d$y, type = 'l')
 ## k) Is this data likely from a normal distribution? How would you check ?
 ##    (describe in words, remember to comment out text)
 
-# Yes, at first glance, it seems likely be from a normal distribution.
-# To check this hypothesis, we can use a normality test. That can be a graphical test
-# such as a Quantile-Quantile plot, or a frequentists test such as the Shapiro–Wilk test.
+# Yes, it most likely has a normal distribution.
+# To check this hypothesis, we can use a normality test. That can either be a graphical test
+# such as a Quantile-Quantile plot, or a frequentists test such as the Shapiro–Wilks test.
 
 ## l) Looking at the graph, do you think the data is skewed? In which direction?
 
@@ -188,7 +188,7 @@ plot(d$x, d$y, type = 'l')
 ##    in one sentence why.
 
 # The scale of the count varialbe is a discrete ratio scale, since it can only take integer values
-# with the zero value indicating the abscence of the sentence (and then) in the observation (story).
+# with the zero value indicating the abscence of the expression "and then" in the observation (story).
 
 ## b) The researcher is also interested in whether story telling is related to 
 ##    their reading habits. As a proxy, she asked the children, whether they have 
@@ -239,8 +239,8 @@ range(stories[stories$lib == "N", "obs"])
 
 ## l) What is a whisker? Why is the upper whisker of group "Y" so short?
 
-# Whiskers are drawn at a distance of 1.5*IQR below the first quartile (up to the largest observed data point),
-# and 1.5*IQR above the third quartile (down to the lowest observed data point).
+# Whiskers are drawn at a distance of 1.5*IQR below the first quartile (down to the lowest observed data point),
+# and 1.5*IQR above the third quartile (up to the largest observed data point).
 # We can attribute the shortness of the upper whisker of group Y to the negative skew of the obesrvations in the group.
 
 ## m) Compare the median of group Y with the mean - which one is plotted in your
