@@ -90,7 +90,7 @@ ggplot(summaryByFreq, aes(x=Freq, y=m, fill = Freq)) +
 ##  construct a line plot of the same data, again including error bars.
 ##  Hint: if you get a complaint, try to add group = 1 to your aes
 ggplot(summaryByFreq, aes(x = Freq, y = m, fill = Freq, group = 1)) + 
-  geom_col() +
+  geom_line() +
   geom_errorbar(aes(ymin=m-1.96*std_e, ymax=m+1.96*std_e), width = 0.2)
 ## h. Gauging from the plot, does it look like there's an important difference in mean RT 
 ##  for low and high frequency words?
@@ -235,7 +235,7 @@ data_frame <- data.frame(tutor = tutor, score = score)
 ## f. run the independent samples TTest (independentSamplesTTest) and formulate the findings as discussed 
 ###  in the lecture. 
 independentSamplesTTest(score ~ tutor, data=data_frame)
-# t(18)=-1.996, p = 0.063, CI95 = [-14.605, 0.442], d = 0.893
+# t(15.897)=-1.996, p = 0.063, CI95 = [-14.605, 0.442], d = 0.893
 
 ## Time to play around!
 
@@ -245,7 +245,7 @@ independentSamplesTTest(score ~ tutor, data=data_frame)
 ## make sure to set the seed again before you run your code to be able to reproduce results
 set.seed(9273)
 gp = c()
-gseq = seq(4,30)
+gseq = seq(4,50)
 for (i in gseq) {
   tutor1_grades <- rnorm(i, 20, 8)
   tutor2_grades <- rnorm(i, 28, 10)
@@ -253,26 +253,28 @@ for (i in gseq) {
   tutor <- factor(c(rep('tutor1',i), rep('tutor2',i)))
   data_frame <- data.frame(tutor = tutor, score = score)
   t <- independentSamplesTTest(score ~ tutor, data=data_frame)
-  print(t$p.value)
   gp <- append(gp, t$p.value)
 }
-plot(gseq, gp) # = 
+plot(gseq, gp)
+# We need a sample size of > 26, given the m and sd we chose
+
 ## h.	repeat the whole experiment you performed in a-f with different means.
 ##   What do you find? When is the test more likely to come out significant?
 set.seed(9273)
 hp = c()
-hseq = seq(0,40)
+hseq = seq(0, 40)
 for (j in hseq) {
-  tutor1_grades <- rnorm(30, 20, 10)
-  tutor2_grades <- rnorm(30, j, 10)
+  tutor1_grades <- rnorm(10, 20, 8)
+  tutor2_grades <- rnorm(10, j, 10)
   score <- c(tutor1_grades, tutor2_grades)
-  tutor <- factor(c(rep('tutor1',30), rep('tutor2',30)))
+  tutor <- factor(c(rep('tutor1', 10), rep('tutor2', 10)))
   data_frame <- data.frame(tutor = tutor, score = score)
-  t <- independentSamplesTTest(score ~ tutor, data=data_frame, var.equal = TRUE)
+  t <- independentSamplesTTest(score ~ tutor, data=data_frame)
   hp <- append(hp, t$p.value)
 }
 plot(hseq, hp)
 # The test is more likely to come out significant when the means are far apart
+# Approximately, when one mean is outside the other mean's "mean ± pooled sd" zone
 
 ## i.	Now, vary the standard deviation, keeping means and sample size constant!
 ##   What do you find? When is the test more likely to come out significant?
@@ -280,14 +282,14 @@ set.seed(9273)
 ip=c()
 iseq = seq(1, 30, 0.5)
 for (k in iseq) {
-  tutor1_grades <- rnorm(30, 20, k)
-  tutor2_grades <- rnorm(30, 28, k)
+  tutor1_grades <- rnorm(10, 20, k)
+  tutor2_grades <- rnorm(10, 28, k)
   score <- c(tutor1_grades, tutor2_grades)
-  tutor <- factor(c(rep('tutor1', 30), rep('tutor2',30)))
+  tutor <- factor(c(rep('tutor1', 10), rep('tutor2',10)))
   data_frame <- data.frame(tutor = tutor, score = score)
   t <- independentSamplesTTest(score ~ tutor, data=data_frame, var.equal=TRUE)
   ip <- append(ip, t$p.value)
 }
 plot(iseq, ip)
 # The test is more likely to come out significant when the standard deviations
-# are small compared to the mean. The more the sd the higher the p-value.
+# are small compared to the mean
