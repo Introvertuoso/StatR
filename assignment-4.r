@@ -52,15 +52,15 @@ lex <- lexdec %>% select(c(Subject, Complex, RT, Sex, Frequency))
 
 ## b. Why is this not possible with the data as it is?
 
-# Because t.test requires variables to be cat. x cont. but in this case we have cont. x cont.
+# Because t.test requires variables to be categorical x continuous but in this case we have continuous x continuous
 
 ## Run the following line to prepare the dataset for later steps:
 lex = lex %>% mutate(Freq = as.factor(ifelse(Frequency > 4.75, "high", "low")))
 
 ## c. Look at the new variable. Describe how frequency was transformed and why.
 
-# Frequency variable was factorized and is now cat. because this makes applying 
-# the t.test possible
+# Frequency variable was factorized and is now categorical. This makes allows us
+# to apply the t.test possible
 
 ## Before we start testing, we want to get an impression of the data and create a barplot of 
 ## the mean by Freq, including error bars that show the 95% CI.
@@ -73,7 +73,9 @@ se = function(x){sd(x)/sqrt(length(x))}
 ##  se of RT. Store the result to summaryByFreq
 ##  You will find examples of how the summarizing can be done here:
 ##  https://datacarpentry.org/R-genomics/04-dplyr.html#split-apply-combine_data_analysis_and_the_summarize()_function
-summaryByFreq <- lex %>% group_by(Freq) %>% summarize(m = mean(RT), std_e = se(RT))
+summaryByFreq <- lex %>% 
+  group_by(Freq) %>%
+  summarize(m = mean(RT), std_e = se(RT))
 ## e. Describe the resulting data set (summaryByPrevType) in your own words
 
 # It shows a summary of the mean and standard error of RT for each Frequency category
@@ -87,13 +89,13 @@ ggplot(summaryByFreq, aes(x=Freq, y=m, fill = Freq)) +
 ##  interested in (i.e. the spread of the error bars) hard to perceive. As an alternative,
 ##  construct a line plot of the same data, again including error bars.
 ##  Hint: if you get a complaint, try to add group = 1 to your aes
-ggplot(summaryByFreq, aes(x=Freq, y=m, fill = Freq, group=1)) + 
-  geom_line(stat="identity") +
-  geom_errorbar(aes(ymin=m-1.96*std_e, ymax=m+1.96*std_e))
+ggplot(summaryByFreq, aes(x = Freq, y = m, fill = Freq, group = 1)) + 
+  geom_col() +
+  geom_errorbar(aes(ymin=m-1.96*std_e, ymax=m+1.96*std_e), width = 0.2)
 ## h. Gauging from the plot, does it look like there's an important difference in mean RT 
 ##  for low and high frequency words?
 
-# Yes neither of the means lies within the other mean's CI
+# Yes, because neither of the means lies within the other mean's 95% CI
 
 ## i. Let's go back to the original data frame "lex".
 ##  Now that you've taken a look at the data, you want to get into the stats.
@@ -107,7 +109,9 @@ ggplot(summaryByFreq, aes(x=Freq, y=m, fill = Freq, group=1)) +
 ##  and low/high condition (Freq). We will again use group_by and summarize, but
 ##  this time we have to group by Subject and Freq, while we only need the mean to be 
 ##  stored, not the se. Assign the result to bySubj
-bySubj <- lex %>% group_by(Subject, Freq) %>% summarize(m = mean(RT))
+bySubj <- lex %>%
+  group_by(Subject, Freq) %>%
+  summarize(m = mean(RT))
 ## k. Create histograms of the RT data in bySubj depending on the frequency category 
 ##  and display them side by side. Set the binwidth to 0.08
 ggplot(bySubj, aes(x = m)) +
@@ -120,12 +124,11 @@ ggplot(bySubj, aes(x = m)) +
 ## m. Based on the histograms and the density plots - are these data likely coming
 ## from a normal distribution?
 
-# No we don't think so
+# No, we don't think so
 
 ## n. Create boxplots of the mean RT in bySubj by Freq
-ggplot(bySubj, aes(x = m)) +
-  geom_boxplot() +
-  facet_grid(.~Freq) + coord_flip()
+ggplot(bySubj, aes(x = Freq, y = m)) +
+  geom_boxplot()
 ## o. We want to compute a t-test to compare the mean RT between lexical decisions on low
 ##  frequency words vs high frequency words using the data in bySubj.
 ##  Do you need a paired t-test or independent sample t-test? why?
@@ -165,7 +168,10 @@ cohensD(m ~ Freq, data = bySubj)
 ##  the dataset to a wide format. 
 ##  In addition to group_by() and summarize(), you will need the function spread(). 
 ##  Assign the result to wide
-wide <- lex %>% group_by(Subject, Complex) %>% summarize(m = mean(RT)) %>% spread(Complex, m)
+wide <- lex %>% 
+  group_by(Subject, Complex) %>% 
+  summarize(m = mean(RT)) %>% 
+  spread(Complex, m)
 ## b. Compute a t-test on the wide format data - note that for wide-format 
 ##  data you need to use a different syntax inside t.test()
 t.test(x=wide$complex, y=wide$simplex, paired=TRUE)
@@ -188,7 +194,9 @@ t.test(x=wide$complex, y=wide$simplex, paired=TRUE)
 ## b. Use again group_by and summarize to obtain by subject means of RT, but
 ## this time with regard to Sex and assign it to bySubjSex
 ## Perform the t-test you decided for.
-bySubjSex <- lex %>% group_by(Subject, Sex) %>% summarize(m = mean(RT))
+bySubjSex <- lex %>%
+  group_by(Subject, Sex) %>%
+  summarize(m = mean(RT))
 t.test(m ~ Sex, data = bySubjSex)
 ## c. What do you conclude?
 
@@ -196,9 +204,8 @@ t.test(m ~ Sex, data = bySubjSex)
 # between the male and female subjects in terms of RT
 
 ## d. Choose an appropriate plot to visualize the result
-ggplot(bySubjSex, aes(x = m)) +
-  geom_boxplot() +
-  facet_grid(.~Sex) + coord_flip()
+ggplot(bySubjSex, aes(x = Sex, y = m)) +
+  geom_boxplot()
 #############################################
 ### 4. T-Tests for different sample sizes
 #############################################
@@ -219,16 +226,16 @@ tutor1_grades <- rnorm(10, 20, 8)
 tutor2_grades <- rnorm(10, 28, 10)
 ## c. Combine the two samples and store the result into one vector called "score" (it should 
 ##    first show all scores from tutor1 followed by the scores of tutor2)
-score <- as.vector(c(tutor1_grades, tutor2_grades))
+score <- c(tutor1_grades, tutor2_grades)
 ## d. Create a vector called tutor indicating which tutor the score belongs to: it should show 
 ##   "tutor1" 10 times followed by "tutor2" 10 times
-tutor <- as.vector(c(rep('tutor1',10), rep('tutor2',10)))
+tutor <- factor(c(rep('tutor1',10), rep('tutor2',10)))
 ## e. Create a data frame named "data_frame" having 2 columns "tutor", "score" created above.
-data_frame <- data.frame(tutor, score, colnames = c("tutor", "score"))
+data_frame <- data.frame(tutor = tutor, score = score)
 ## f. run the independent samples TTest (independentSamplesTTest) and formulate the findings as discussed 
 ###  in the lecture. 
-independentSamplesTTest(score ~ tutor, data=data_frame, var.equal=TRUE)
-# t(18)=-2.865, p < 0.05, 95% CI = [-17.557, -2.7], d = 1.281
+independentSamplesTTest(score ~ tutor, data=data_frame, var.equal=FALSE)
+# t(18)=-1.996, p = 0.063, CI95 = [-14.605, 0.442], d = 0.893
 
 ## Time to play around!
 
@@ -242,41 +249,45 @@ gseq = seq(4,30)
 for (i in gseq) {
   tutor1_grades <- rnorm(i, 20, 8)
   tutor2_grades <- rnorm(i, 28, 10)
-  score <- as.vector(c(tutor1_grades, tutor2_grades))
-  tutor <- as.vector(c(rep('tutor1',i), rep('tutor2',i)))
-  data_frame <- data.frame(tutor, score, colnames= c("tutor", "score"))
-  t <- independentSamplesTTest(score ~ tutor, data=data_frame, var.equal=TRUE)
+  score <- c(tutor1_grades, tutor2_grades)
+  tutor <- factor(c(rep('tutor1',i), rep('tutor2',i)))
+  data_frame <- data.frame(tutor = tutor, score = score)
+  t <- independentSamplesTTest(score ~ tutor, data=data_frame)
   print(t$p.value)
   gp <- append(gp, t$p.value)
 }
 plot(gseq, gp)
 ## h.	repeat the whole experiment you performed in a-f with different means.
 ##   What do you find? When is the test more likely to come out significant?
+set.seed(9273)
 hp = c()
-for (j in gseq) {
-  tutor1_grades <- rnorm(30, 10, 10)
+hseq = seq(0,40)
+for (j in hseq) {
+  tutor1_grades <- rnorm(30, 20, 10)
   tutor2_grades <- rnorm(30, j, 10)
-  score <- as.vector(c(tutor1_grades, tutor2_grades))
-  tutor <- as.vector(c(rep('tutor1',30), rep('tutor2',30)))
-  data_frame <- data.frame(tutor, score, colnames=c("tutor", "score"))
-  t <- independentSamplesTTest(score ~ tutor, data=data_frame, var.equal=TRUE)
+  score <- c(tutor1_grades, tutor2_grades)
+  tutor <- factor(c(rep('tutor1',30), rep('tutor2',30)))
+  data_frame <- data.frame(tutor = tutor, score = score)
+  t <- independentSamplesTTest(score ~ tutor, data=data_frame, var.equal = TRUE)
   hp <- append(hp, t$p.value)
 }
-plot(gseq, hp)
+plot(hseq, hp)
 # The test is more likely to come out significant when the means are far apart
 
 ## i.	Now, vary the standard deviation, keeping means and sample size constant!
 ##   What do you find? When is the test more likely to come out significant?
+set.seed(9273)
 ip=c()
-for (k in gseq) {
-  tutor1_grades <- rnorm(30, 20, k/2)
-  tutor2_grades <- rnorm(30, 28, k/2)
-  score <- as.vector(c(tutor1_grades, tutor2_grades))
-  tutor <- as.vector(c(rep('tutor1', 30), rep('tutor2',30)))
-  data_frame <- data.frame(tutor, score, colnames=c("tutor", "score"))
+iseq = seq(1,30, 0.5)
+for (k in iseq) {
+  tutor1_grades <- rnorm(30, 20, k)
+  tutor2_grades <- rnorm(30, 28, k)
+  score <- c(tutor1_grades, tutor2_grades)
+  tutor <- factor(c(rep('tutor1', 30), rep('tutor2',30)))
+  data_frame <- data.frame(tutor = tutor, score = score)
   t <- independentSamplesTTest(score ~ tutor, data=data_frame, var.equal=TRUE)
   ip <- append(ip, t$p.value)
 }
-plot(gseq, ip)
+plot(iseq, ip)
 # The test is more likely to come out significant when the standard deviations
-# are small. The more the sd the higher the p-value.
+# are small compared to the mean. The more the sd the higher the p-value.
