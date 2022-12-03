@@ -59,8 +59,8 @@ lex = lex %>% mutate(Freq = as.factor(ifelse(Frequency > 4.75, "high", "low")))
 
 ## c. Look at the new variable. Describe how frequency was transformed and why.
 
-# Frequency variable was factorized and is now categorical. This makes allows us
-# to apply the t.test possible
+# Frequency variable was factorized and is now categorical. This allows us
+# to apply the t.test
 
 ## Before we start testing, we want to get an impression of the data and create a barplot of 
 ## the mean by Freq, including error bars that show the 95% CI.
@@ -177,7 +177,7 @@ wide <- lex %>%
 t.test(x=wide$complex, y=wide$simplex, paired=TRUE)
 ## c. What do you conclude from this?
 # p-value of > 0.05 denotes that the subjects showed no significant difference in RTs
-# between simpelx and complex words
+# between simplex and complex words
 
 #####################################################
 ### 3. Another T-test
@@ -188,7 +188,7 @@ t.test(x=wide$complex, y=wide$simplex, paired=TRUE)
 ##  influences their reaction time. Check out the variable Sex. Can you use a t-test to pursue this 
 ##  question and which type of t-test would you use? 
 
-# Sex is a cat. variable so it's suitable to perform a t.test with RT. we would use
+# Sex is a categorical variable so it's suitable to perform a t.test with RT. we would use
 # a normal t-test since the observations are independent
 
 ## b. Use again group_by and summarize to obtain by subject means of RT, but
@@ -234,7 +234,7 @@ tutor <- factor(c(rep('tutor1',10), rep('tutor2',10)))
 data_frame <- data.frame(tutor = tutor, score = score)
 ## f. run the independent samples TTest (independentSamplesTTest) and formulate the findings as discussed 
 ###  in the lecture. 
-independentSamplesTTest(score ~ tutor, data=data_frame, var.equal=FALSE)
+independentSamplesTTest(score ~ tutor, data=data_frame)
 # t(18)=-1.996, p = 0.063, CI95 = [-14.605, 0.442], d = 0.893
 
 ## Time to play around!
@@ -256,7 +256,7 @@ for (i in gseq) {
   print(t$p.value)
   gp <- append(gp, t$p.value)
 }
-plot(gseq, gp)
+plot(gseq, gp) # = 
 ## h.	repeat the whole experiment you performed in a-f with different means.
 ##   What do you find? When is the test more likely to come out significant?
 set.seed(9273)
@@ -278,7 +278,7 @@ plot(hseq, hp)
 ##   What do you find? When is the test more likely to come out significant?
 set.seed(9273)
 ip=c()
-iseq = seq(1,30, 0.5)
+iseq = seq(1, 30, 0.5)
 for (k in iseq) {
   tutor1_grades <- rnorm(30, 20, k)
   tutor2_grades <- rnorm(30, 28, k)
