@@ -170,15 +170,21 @@ summary(mrm)
 # the ones with 1 predictor did.
 
 ## d) Look up the GDP and illiteracyMale for United.States and Brazil in the original data set (UN98)
-
-us_brazil_UN98 %>% filter(country %in% c("United.States", "Brazil"))
-str(us_brazil_UN98$illiteracyMale)
-str(us_brazil_UN98$GDPperCapita)
+imUS <- UN98['United.States','illiteracyMale']
+imB <- UN98['Brazil','illiteracyMale']
+gdpUS <- UN98['United.States','GDPperCapita']
+gdpB <- UN98['Brazil','GDPperCapita']
+leUS <- UN98['United.States','lifeMale']
+leB <- UN98['Brazil','lifeMale']
 
 ## e) Using the model from 3a:  What is the predicted life expectancy for United.States and Brazil?
 ##  Calculate "by hand", i.e. do not use predict() and show your calculation. Don't forget to divide
 ##  the GDPperCapita by 1000 first!
-us_brazil_LE <- 65.88472 + 0.53611*X$GDPperCapita/1000 -0.20627*X$illiteracyMale
+us_LE <- 65.88472 + 0.53611*gdpUS/1000 - 0.20627*imUS
+b_LE <- 65.88472 + 0.53611*gdpB/1000 - 0.20627*imB
+# The predicted life expectancy for Brazil wasn't that far off 64.85 to the original 63.4
+# As for the US, it overestimated by predicting 79.38 compared to the original 73.4
+
 ## f) Run an additional model of life expectancy for the AsiaMale data set including also economicActivityMale
 mrm2 <- lm(lifeMale ~ GDPt+illiteracyMale+economicActivityMale, data=AsiaMale)
 summary(mrm2)
