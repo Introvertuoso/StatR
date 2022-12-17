@@ -49,15 +49,15 @@ str(data)
 ##  Treat as the predictor variable (we will assume that the weight before treatment is comparable between groups). 
 ##  Please formulate a sensible research hypothesis.
 
-# H0 = Postwt doesn't differ between treatment groups
+# H0 = The mean Postwt is equal across all three groups (CBT, FT and Cont).
 
 ## c) Build a boxplot of Postwt depending on "Treat". Please use ggplot here and below!
 ggplot(data, aes(Treat, Postwt)) + geom_boxplot()
 ## d) Looking at the boxplots, is there a difference between the weight between the
 ##  3 treatment groups?
 
-# Yes the medians and IQRs differ in value and size. CBT and Cont have overlapping
-# IQRs whereas FT doesn't overlap with either
+# Yes the medians and IQRs are different for each group. the median of CBT is
+# within the IQR of Cont., while the median of FT doesn't overlap with either.
 
 ## e) Now we are ready to perform 1-way ANOVA: please use the function aov() on 
 ## Postwt depending on Treat and assign the result to aov1way
@@ -69,23 +69,29 @@ aov1way <- aov(Postwt ~ Treat, data=data)
 ## (Figure out the best way to check this assumption and give a detailed justified 
 ## answer to whether it is violated or not.)
 
-# Assuming that none of the patients was in multipel groups and they were separated
-# then this assumption is satisfied
+# Assuming that none of the patients was in multiple groups, such that the groups
+# are completely separate, then this assumption is satisfied.
 
 ## g) Normality of residuals (figure out the best way to check this assumption)
-shapiro.test(data[data$Treat == 'CBT',]$Postwt) # p-value = 0.2057 -> Normal
-shapiro.test(data[data$Treat == 'FT',]$Postwt) # p-value = 0.007391 -> Not normal
-shapiro.test(data[data$Treat == 'Cont',]$Postwt) # p-value = 0.5431 -> Normal
-shapiro.test(data$Postwt) # p-value = 0.05781 -> strictly speaking "Normal"
+qqPlot(residuals(aov1way)) # The residuals seem to fit the normal distribution normally well
+shapiro.test(residuals(aov1way)) # W = 0.984, p = 0.503
+
 ## h) What do you conclude from your results in g? (give a detailed justified answer to whether it is violated or not)
 
-# We think that the assumption isn't satisfied for the groups aren't entirely normal
+# The Shapiro-Wilk test showed that the distribution of the residuals of aov1way
+# has no significant evidence of non-normality (W = .984, p = .503).
+# Based on this outcome, we can assume that the assumption is satisfied.
 
 ## i) Homogeneity of variance of residuals (figure out the best way to check this assumption)
-bartlett.test(Postwt ~ Treat, data=data) # p-value = 0.01212 -> Heterogeneous variance
+residualPlot(aov1way, smooth = TRUE)
+# the means of the residuals do not show an obvious dependence on the fitted value
+leveneTest(Postwt ~ Treat, data = data) # F = 1.77, p = 0.178
+
 ## j) What do you conclude from i? (give a detailed justified answer to whether it is violated or not)
 
-# That the assumption is not satisfied either
+# The homogeneity of variances of the residuals assumption can be safely assumed
+# to be satisfied, since the applied Levene test showed that there is no sigfinicant
+# evidence of heterogenity (F(2, 69) = 1.77, p = 0.178)
 
 ## k) What are your options if you detect that the data violates the ANOVA assumptions? 
 
@@ -95,7 +101,9 @@ bartlett.test(Postwt ~ Treat, data=data) # p-value = 0.01212 -> Heterogeneous va
 summary(aov1way)
 ## m) State your conclusion
 
-# Ignoring the fact that ANOVA is not suitable and rpetending it is
+# The one-way ANOVA revealed that there was a statistically significant difference
+# in mean Postwt between at least two groups (F(2, 69) = 8.651, p < 0.001).
+
 # We conclude that there exists a stastically significant difference among the treatment
 # groups in terms of Postwt's
 
@@ -108,11 +116,21 @@ pairwise.t.test(data$Postwt, data$Treat, p.adjust.method = 'bonferroni')
 pairwise.t.test(data$Postwt, data$Treat, p.adjust.method = 'holm')
 ## p) State your conclusions.
 
-# Conclusion 1: Avoiding Type I error bonferroni only found a significant difference 
-# between the FT and Cont groups meaning FT was a successful treatment
-# Conclusion 2: Holm being the less conservative (but more prone to Type II error) method 
-# found singificant difference between every group pairing meaning FT and CBT were 
-# successful treatments and that FT was even better than CBT
+# Conclusion 1: 
+# The pairwise t-test using bonferroni correction found that the mean Postwt was
+# significantly different between FT and Cont. (p < 0.001).
+# This means that bonferroni correction (avoiding Type I errors) only found a significant
+# difference  between the FT and Cont groups means that FT was a successful treatment
+# given our assumption on equal Prewt means.
+
+# Conclusion 2:
+# The pairwise t-test using holm correction found that the mean Postwt was
+# significantly different between all three groups: FT and Cont. (p < 0.001),
+# CBT and Cont. (p < 0.05), and FT and CBT (p < 0.05)
+# Holm correction, being the less conservative (but more prone to Type II error) method, 
+# found significant differences between every group pairing meaning FT and CBT were 
+# successful treatments and that FT was even better than CBT (again, given the 
+# assumption on equal Prewt means)
 
 ##################################
 ### Exercise 2: 2-way ANOVA
@@ -127,7 +145,8 @@ pairwise.t.test(data$Postwt, data$Treat, p.adjust.method = 'holm')
 ggplot(data, aes(Treat, Prewt)) + geom_boxplot()
 ## b) What is your conclusion?
 
-# The weights are seemingly similar between groups
+# The weights are seemingly similar between groups, since all of the medians of
+# are all three groups are within each others' IQR.
 
 ## Next, we will transform the data set, such that we have one variable combining
 ## both Prewt and Postwt values and an additional factor coding for Time. This will allow us
@@ -145,19 +164,26 @@ summary(data_long)
 ggplot(data_long, aes(Time, Weight)) + geom_boxplot() + facet_grid(cols=vars(Treat))
 ## d) Describe the pattern you observe in c)
 
-# We can see that the weights in the control group remained unchaged
+# We can see that the weights in the control group remained almost unchanged.
 # The weights in the CBT group slightly increased but we're unsure if it's significant as 
-# there remains an overlap
-# Lastly, the FT group exhibited an obvious increase that is most probably significant
+# there remains an the Postwt median is still within IQR of Prewt.
+# Lastly, the FT group exhibited an obvious increase that is most probably significant,
+# since the Postwt and Prewt IQRs do not overlap at all.
 
 ## e) build a two-way ANOVA including Time and Treat as predictors and their interaction
 ##  and assign it to aov2way.
 aov2way <- aov(Weight ~ Treat * Time, data=data_long)
+summary(aov2way) # F(2, 138) = 3.83, p = 0.024
+
 ## f) Report your results in line with the research question.
-summary(aov2way)
-# Treat groups were significantly different. Weight was significantly different over time.
-# The interaction, meaning, there exists a combination of Time x Treat that is superior/inferior
-# a.k.a significantly different from the rest.
+
+# The two-way ANOVA revealed that there was a statistically significant interaction
+# between the effects of Treat and Time on Weight (F(2, 138) = 3.83, p < 0.05)
+
+# In other words, Weight between some treat groups were significantly different.
+# Weight was also significantly different over time. The interaction, means that
+# there exists at least one combination of Time-Treat that is has a statistically
+# different mean Weight compared to the rest (i.e. superior or inferior treatment).
 
 ## g) In order to evaluate the interaction, we will use pairwise tests again. The
 ## function, we are going to use here is TukeyHSD. Please call the function on the 
@@ -168,14 +194,26 @@ TukeyHSD(aov2way)
 ##  which conceptually make most sense! Explain your choice!
 
 # We pick:
-# 1- FT-Postwt x Cont-Postwt (p-val = 0.0000730): This shows that patients in FT treatment 
-# group had significantly higher weights from the patients who didn't receive treatment. 
-# But that's not enough!
-# 2- FT-Prewt x Cont-Prewt (p-val = 0.9582327): This shows that the FT and Cont treatment 
-#groups had NO significantly different weights to begin with. So we're getting somewhere!
-# 3- FT-Postwt x FT-Prewt (p-val = 0.0133651): This shows that the patients in FT group 
-# experienced a significant increase in weight over time. 
-# So the treatment was infact successful! Hooray!
+# 1- FT-Postwt x Cont-Postwt (p = 0.000073): 
+# Tukey’s HSD Test for multiple comparisons found that the mean value of Weight
+# was significantly different between FT-Postwt and Cont-Postwt groups
+# (p < 0.001).
+# This shows that patients in FT treatment group had significantly higher post-treatment
+# weights compared to the patients who didn't receive treatment. 
+# But that's not enough to judge the treatment!
+# 2- FT-Prewt x Cont-Prewt (p-val = 0.958): 
+# Tukey’s HSD Test for multiple comparisons found that there's no significant difference
+# in mean Weight between FT-Postwt and Cont-Postwt groups (p = 0.958).
+# This shows that the FT and Cont treatment groups had NO significantly different 
+# pre-treatment weights to begin with.
+# We're getting somewhere!
+# 3- FT-Postwt x FT-Prewt (p-val = 0.0133651): 
+# Tukey’s HSD Test for multiple comparisons found that the mean value of Weight
+# was significantly different between FT-Postwt and FT-Prewt groups
+# (p < 0.05).
+# This shows that the patients in FT group experienced a significant increase in
+# weight over time. Hence, the treatment was in fact successful!
+# Hooray!
 
 #################################################
 ### Exercise 3: independence assumption
