@@ -127,7 +127,7 @@ m5 = lmer(RT ~ PrevType + Complex + (PrevType+Complex|Subject) + (1             
 
 # m3, because it includes all the possible by-subject and by-word random slopes that may affect
 # the RT of a given word as previous words alongside current ones can affect the subject
-# since they may leave lingering / accumulating effects throughout the sequence
+# since they may leave lingering / accumulating effects throughout the sequence (maximal model)
 
 ## b) You want to relate students' performance in the advanced algebra course in a summer school in Saarbrücken
 ##    to their final math grade in school. The summer school course has 200 participants, coming from 8 different
@@ -147,5 +147,5 @@ m5 = lmer(RT ~ PrevType + Complex + (PrevType+Complex|Subject) + (1             
 # we would add a by-Participant and by-Tutor random slopes for the effect of MathGrade.
 # since a student may be predisposed in math and thus more or less receptive
 # similarly a tutor may be predisposed in math and thus more or less affect the pupils
-
+# achieving the maximal model
 
