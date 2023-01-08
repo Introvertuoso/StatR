@@ -80,7 +80,7 @@ ggplot(ChickWeight, aes(Time, weight, color=Chick)) + geom_line(aes(group = 1)) 
 
 ##    3) In addition to random intercept(s), which random slope(s) should you add to get a maximal model?
 
-# random slope for diet-time interaction
+# by-Chick random slope for Time
 
 ## f) Run the model you specified in e) using lmer() and assign it to chickmod
 chickmod = lmer(weight ~ Time*(1|Diet)+(1+Time|Chick), data=ChickWeight)
