@@ -138,13 +138,14 @@ m5 = lmer(RT ~ PrevType + Complex + (PrevType+Complex|Subject) + (1             
 
 ## lmer(advancedalgebrascore ~ mathGrade, someData)
 
+# we would add a Participant (subject) random effect since each is different
 # we would add a University random effect since different participants were subjected to
-# different curricula at their university
-# we would also add a Tutor random effect since different participants are split into
+# different curricula at their university (hierarchical?)
+# we would also add a Tutor (item) random effect since different participants are split into
 # different tutorial groups where they are subjected to different teaching styles
-# we would add a by-University and by-Tutor random slopes for the effect of MathGrade.
-# since the school education may make a student more or less receptive to the tutor
-# and more or less change the university they represent and ofcourse be more or less
-# receptive to university's teachings
+
+# we would add a by-Participant and by-Tutor random slopes for the effect of MathGrade.
+# since a student may be predisposed in math and thus more or less receptive
+# similarly a tutor may be predisposed in math and thus more or less affect the pupils
 
 
